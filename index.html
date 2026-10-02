@@ -1,1 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semantics Twin — Introduction to Semantics</title>
+<style>
+:root {
+  --bg: #f5f5f5; --card: #ffffff; --text: #212121; --muted: #757575;
+  --border: #e0e0e0; --accent: #1565c0; --accent2: #0d47a1;
+  --good: #2e7d32; --avg: #f57f17; --weak: #c62828;
+  --radius: 14px; --shadow: 0 2px 12px rgba(0,0,0,.08);
+  --input-bg: #fafafa;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#181a20;--card:#23262f;--text:#e8e8e8;--muted:#9e9e9e;
+  --border:#333;--accent:#42a5f5;--accent2:#90caf9;--good:#66bb6a;
+  --avg:#ffa726;--weak:#ef5350;--shadow:0 2px 12px rgba(0,0,0,.3);
+  --input-bg:#2a2d36;}
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+.screen{display:none;max-width:820px;margin:0 auto;padding:20px 16px 40px;}
+.screen.active{display:block;}
 
+/* Header */
+.app-header{text-align:center;padding:28px 16px 12px;}
+.app-header h1{font-size:1.7rem;font-weight:800;color:var(--accent);}
+.app-header p{color:var(--muted);font-size:.95rem;margin-top:4px;}
+
+/* Home cards */
+.home-grid{display:grid;gap:16px;margin-top:20px;}
+.home-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px 20px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.home-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.home-card h3{font-size:1.1rem;margin-bottom:4px;color:var(--accent);}
+.home-card p{color:var(--muted);font-size:.88rem;margin-top:2px;}
+.badge{display:inline-block;font-size:.7rem;padding:2px 8px;border-radius:10px;
+  color:#fff;margin-left:6px;vertical-align:middle;font-weight:600;}
+
+/* Buttons */
+.btn{display:inline-block;padding:10px 22px;border-radius:8px;border:none;
+  font-size:.95rem;font-weight:600;cursor:pointer;transition:background .2s,transform .1s;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent2);}
+.btn-outline{background:transparent;border:2px solid var(--accent);color:var(--accent);}
+.btn-outline:hover{background:var(--accent);color:#fff;}
+.btn-sm{padding:6px 14px;font-size:.82rem;}
+.btn-good{background:var(--good);color:#fff;}
+.btn-weak{background:var(--weak);color:#fff;}
+
+/* Name form */
+.name-form{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 24px;max-width:440px;margin:40px auto;text-align:center;}
+.name-form h2{color:var(--accent);margin-bottom:6px;}
+.name-form p{color:var(--muted);font-size:.9rem;margin-bottom:18px;}
+.name-form input{width:100%;padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);
+  border-radius:8px;font-size:1rem;background:var(--input-bg);color:var(--text);}
+.name-form input:focus{outline:none;border-color:var(--accent);}
+
+/* Nav */
+.nav-back{margin-bottom:12px;}
+
+/* MCQ Test */
+.mcq-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px 20px;margin-bottom:16px;}
+.mcq-card .q-num{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:6px;}
+.mcq-card .q-text{font-size:1.05rem;font-weight:600;margin-bottom:14px;line-height:1.5;}
+.mcq-option{display:block;width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;
+  border:2px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);
+  font-size:.95rem;cursor:pointer;transition:border-color .2s,background .2s;}
+.mcq-option:hover:not(.chosen){border-color:var(--accent);background:rgba(21,101,192,.05);}
+.mcq-option.chosen.correct{border-color:var(--good);background:rgba(46,125,50,.1);}
+.mcq-option.chosen.wrong{border-color:var(--weak);background:rgba(198,40,40,.1);}
+.mcq-option.reveal-correct{border-color:var(--good);background:rgba(46,125,50,.08);}
+.mcq-option.chosen .opt-icon,.mcq-option.reveal-correct .opt-icon{display:inline;}
+.opt-icon{display:none;margin-right:6px;}
+.mcq-feedback{margin-top:10px;padding:12px 16px;border-radius:10px;font-size:.9rem;
+  line-height:1.5;display:none;}
+.mcq-feedback.show{display:block;}
+.mcq-feedback.correct-fb{background:rgba(46,125,50,.1);border-left:4px solid var(--good);}
+.mcq-feedback.wrong-fb{background:rgba(198,40,40,.1);border-left:4px solid var(--weak);}
+.mcq-option:disabled{cursor:default;opacity:.85;}
+
+/* Written test */
+.wq-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px 20px;margin-bottom:16px;}
+.wq-card .q-num{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;margin-bottom:4px;}
+.wq-card .q-marks{font-size:.75rem;color:var(--accent);font-weight:600;margin-bottom:8px;}
+.wq-card .q-text{font-size:1.02rem;font-weight:600;margin-bottom:14px;line-height:1.5;}
+.wq-card textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;
+  font-size:.95rem;background:var(--input-bg);color:var(--text);resize:vertical;min-height:80px;
+  font-family:inherit;line-height:1.5;}
+.wq-card textarea:focus{outline:none;border-color:var(--accent);}
+.wq-card textarea.para{min-height:140px;}
+.wq-check-btn{margin-top:10px;}
+.wq-feedback{margin-top:12px;padding:14px 16px;border-radius:10px;font-size:.9rem;
+  line-height:1.5;display:none;}
+.wq-feedback.show{display:block;}
+.wq-feedback.fb-good{background:rgba(46,125,50,.1);border-left:4px solid var(--good);}
+.wq-feedback.fb-partial{background:rgba(245,127,23,.1);border-left:4px solid var(--avg);}
+.wq-feedback.fb-weak{background:rgba(198,40,40,.1);border-left:4px solid var(--weak);}
+.fb-emoji{font-size:1.5rem;margin-bottom:6px;}
+.fb-label{font-weight:700;margin-bottom:4px;}
+.fb-model{margin-top:8px;padding:10px 14px;background:rgba(21,101,192,.06);border-radius:8px;font-size:.88rem;}
+.fb-model strong{color:var(--accent);}
+
+/* Progress bar */
+.progress-bar-wrap{background:var(--border);border-radius:6px;height:8px;margin:12px 0 20px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .4s ease;}
+
+/* Results screen */
+.result-header{text-align:center;margin-bottom:20px;}
+.score-ring{width:110px;height:110px;border-radius:50%;border:6px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;margin:16px auto;
+  font-size:1.6rem;font-weight:800;color:var(--accent);}
+.score-pct{font-size:1.3rem;font-weight:700;color:var(--accent);text-align:center;}
+.grade-text{font-size:1.1rem;font-weight:700;text-align:center;margin:6px 0;}
+.grade-msg{text-align:center;color:var(--muted);font-size:.95rem;margin-bottom:16px;line-height:1.5;}
+
+/* Stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:12px 0;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:16px;text-align:center;}
+.stat-num{font-size:1.5rem;font-weight:800;}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:2px;}
+
+/* Topic bars */
+.topic-strength{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.88rem;}
+.bar-bg{flex:1;height:10px;background:var(--border);border-radius:5px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:5px;transition:width .5s ease;}
+.bar-fill.strong{background:var(--good);}
+.bar-fill.medium{background:var(--avg);}
+.bar-fill.weak{background:var(--weak);}
+
+/* Encouragement box */
+.encourage-box{background:var(--card);border:2px solid var(--accent);border-radius:var(--radius);
+  padding:20px;margin:20px 0;text-align:center;}
+.encourage-box .emoji{font-size:2rem;margin-bottom:8px;}
+.encourage-box h3{color:var(--accent);margin-bottom:6px;}
+.encourage-box p{color:var(--muted);font-size:.92rem;line-height:1.5;}
+
+.next-step-box{background:rgba(21,101,192,.06);border-radius:10px;padding:16px;margin-top:14px;}
+.next-step-box h3{color:var(--accent);font-size:1rem;margin-bottom:8px;}
+.next-step-box ol{padding-left:20px;}
+.next-step-box li{margin-bottom:4px;font-size:.9rem;}
+
+/* Dashboard */
+.dash-login{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 24px;max-width:400px;margin:40px auto;text-align:center;}
+.dash-login input{width:100%;padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);
+  border-radius:8px;font-size:1rem;background:var(--input-bg);color:var(--text);}
+.dash-login input:focus{outline:none;border-color:var(--accent);}
+.dash-table-wrap{overflow-x:auto;margin-top:16px;}
+table.dash-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.dash-table th,.dash-table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.dash-table th{background:var(--accent);color:#fff;font-weight:600;position:sticky;top:0;}
+.dash-table tr:hover{background:rgba(21,101,192,.04);}
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0;}
+
+/* Learn module */
+.learn-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:12px;overflow:hidden;}
+.learn-header{padding:16px 20px;cursor:pointer;display:flex;align-items:center;gap:10px;
+  transition:background .15s;}
+.learn-header:hover{background:rgba(21,101,192,.04);}
+.learn-header .lh-icon{font-size:1.3rem;}
+.learn-header .lh-title{flex:1;font-weight:700;font-size:1rem;}
+.learn-header .lh-arrow{color:var(--muted);transition:transform .25s;font-size:.9rem;}
+.learn-header.open .lh-arrow{transform:rotate(180deg);}
+.learn-body{display:none;padding:0 20px 18px;font-size:.92rem;line-height:1.7;}
+.learn-body.open{display:block;}
+.learn-body h4{color:var(--accent);margin:12px 0 4px;font-size:.95rem;}
+.learn-body ul,.learn-body ol{padding-left:20px;margin:4px 0 8px;}
+.learn-body li{margin-bottom:3px;}
+.learn-body .example{background:rgba(21,101,192,.05);border-left:3px solid var(--accent);
+  padding:8px 12px;border-radius:0 8px 8px 0;margin:6px 0;font-size:.88rem;}
+.learn-body .key-point{background:rgba(46,125,50,.08);border-radius:8px;padding:8px 12px;
+  margin:6px 0;font-size:.88rem;border-left:3px solid var(--good);}
+
+/* Footer */
+.app-footer{text-align:center;padding:20px;color:var(--muted);font-size:.78rem;margin-top:20px;}
+
+/* Responsive */
+@media(max-width:600px){
+  .app-header h1{font-size:1.35rem;}
+  .mcq-card,.wq-card{padding:16px 14px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .topic-strength{flex-wrap:wrap;}
+  .topic-strength span:first-child{min-width:100%!important;margin-bottom:2px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HOME SCREEN ===== -->
+<div id="homeScreen" class="screen active">
+  <div class="app-header">
+    <h1>📖 Semantics Twin</h1>
+    <p>Your Digital Learning Companion for Introduction to Semantics</p>
+  </div>
+  <div class="home-grid">
+    <div class="home-card" onclick="showLearn()">
+      <h3>📚 Learn Semantics</h3>
+      <p>Study the key concepts before you take the tests. Topic-wise explanations with definitions, examples, and quick-revision notes.</p>
+    </div>
+    <div class="home-card" onclick="startTest(1)">
+      <h3>📝 Test Set 1 — MCQ <span class="badge" style="background:#1565c0">15 Qs</span></h3>
+      <p>Multiple Choice Questions purely on semantics.</p>
+      <p>Select the correct answer, get instant feedback with explanations.</p>
+    </div>
+    <div class="home-card" onclick="startTest(2)">
+      <h3>✍️ Test Set 2 — Written <span class="badge" style="background:#7b1fa2">15 Qs</span></h3>
+      <p>8 Two-mark questions · 7 Paragraph questions</p>
+      <p>Write your answers, then check against model answers with detailed feedback.</p>
+    </div>
+    <div class="home-card" onclick="showDashLogin()">
+      <h3>📊 Teacher Dashboard</h3>
+      <p>View student scores, attempts, and performance analytics.</p>
+    </div>
+  </div>
+  <div class="app-footer">Semantics Twin · Built for Introduction to Semantics · 2024–2026</div>
+</div>
+
+<!-- ===== LEARN SCREEN ===== -->
+<div id="learnScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Back</button></div>
+  <h2 style="color:var(--accent);margin-bottom:4px;">📚 Learn Semantics</h2>
+  <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px;">Tap any topic to expand. Study these concepts before attempting the tests.</p>
+  <div id="learnContent"></div>
+</div>
+
+<!-- ===== NAME ENTRY SCREEN ===== -->
+<div id="nameScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Back</button></div>
+  <div class="name-form">
+    <h2>Enter Your Details</h2>
+    <p>Your name and roll number will be recorded with your test results.</p>
+    <input type="text" id="studentRollNo" placeholder="Roll No (e.g. 2024ENG001)" maxlength="50">
+    <input type="text" id="studentName" placeholder="Full Name" maxlength="100">
+    <br>
+    <button class="btn btn-primary" onclick="beginTest()">Start Test</button>
+  </div>
+</div>
+
+<!-- ===== MCQ TEST SCREEN (Set 1) ===== -->
+<div id="mcqScreen" class="screen">
+  <div class="nav-back">
+    <button class="btn btn-outline btn-sm" onclick="confirmExit()">← Exit Test</button>
+    <span style="float:right;color:var(--muted);font-size:.85rem" id="mcqProgress">0/15</span>
+  </div>
+  <h2 style="color:var(--accent);margin-bottom:4px;">Test Set 1 — Multiple Choice</h2>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="mcqBar" style="width:0%"></div></div>
+  <div id="mcqContent"></div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn btn-primary" id="mcqSubmitBtn" onclick="finishMCQ()" style="display:none;">Submit Test & View Results</button>
+  </div>
+</div>
+
+<!-- ===== WRITTEN TEST SCREEN (Set 2) ===== -->
+<div id="writtenScreen" class="screen">
+  <div class="nav-back">
+    <button class="btn btn-outline btn-sm" onclick="confirmExit()">← Exit Test</button>
+    <span style="float:right;color:var(--muted);font-size:.85rem" id="writtenProgress">0/15 checked</span>
+  </div>
+  <h2 style="color:var(--accent);margin-bottom:4px;">Test Set 2 — Written Answers</h2>
+  <p style="color:var(--muted);font-size:.88rem;margin-bottom:6px;">Write your answer first, then click "Check Answer" to see feedback.</p>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="writtenBar" style="width:0%"></div></div>
+  <div id="writtenContent"></div>
+  <div style="text-align:center;margin-top:20px;">
+    <button class="btn btn-primary" id="writtenSubmitBtn" onclick="finishWritten()" style="display:none;">Submit Test & View Results</button>
+  </div>
+</div>
+
+<!-- ===== RESULTS SCREEN ===== -->
+<div id="resultsScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Home</button></div>
+  <div id="resultsContent"></div>
+</div>
+
+<!-- ===== DASHBOARD SCREEN ===== -->
+<div id="dashboardScreen" class="screen">
+  <div class="nav-back"><button class="btn btn-outline btn-sm" onclick="goHome()">← Home</button></div>
+  <div id="dashContent"></div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwhi3aV-z8qMyv6iK5hk1IUSUpls0Cu8PrUoPFyYq2Me5lHSFYfF351H9oabuQYeboWgQ/exec';
+const DASH_USER = 'admin';
+const DASH_PASS = 'sem2024';
+
+// ===== STATE =====
+let currentSet = null;
+let studentName = '';
+let studentRollNo = '';
+let mcqAnswered = 0;
+let mcqCorrect = 0;
+let mcqResults = [];
+let writtenChecked = 0;
+let writtenResults = [];
+
+// ===== TOPICS =====
+const TOPICS = {
+  basics: { name: 'What is Semantics', icon: '📖' },
+  sense_reference: { name: 'Sense & Reference', icon: '🔍' },
+  meaning_types: { name: 'Types of Meaning', icon: '🎯' },
+  sense_relations: { name: 'Sense Relations', icon: '🔗' },
+  polysemy_homonymy: { name: 'Polysemy & Homonymy', icon: '🪞' },
+  ambiguity: { name: 'Ambiguity', icon: '❓' },
+  sentence_utterance: { name: 'Sentence vs Utterance', icon: '💬' },
+  entailment: { name: 'Entailment & Presupposition', icon: '➡️' },
+  semantic_change: { name: 'Semantic Change', icon: '🔄' },
+  theories: { name: 'Theories of Meaning', icon: '💡' },
+  meaning_of_meaning: { name: 'The Meaning of Meaning', icon: '📕' }
+};
+
+// ===== LEARN DATA =====
+const LEARN_DATA = [
+  {
+    topic: 'basics',
+    title: 'What is Semantics?',
+    content: `<p><strong>Semantics</strong> is the branch of linguistics that studies <strong>meaning</strong> in language. It examines how words, phrases, and sentences convey meaning and how we interpret them.</p>
+<h4>Why Does It Matter?</h4>
+<p>When you hear the word "dog," you immediately understand what it means. Semantics studies <em>how</em> that meaning works and <em>what</em> creates it. It operates at multiple levels — from the meaning of individual words to the meaning of entire sentences and discourses.</p>
+<div class="example"><strong>Example:</strong> The sentence "The bank is near the river" — how do you know which meaning of "bank" is intended? Semantics helps explain this.</div>
+<div class="key-point"><strong>Key Point:</strong> Semantics is not just about dictionary definitions — it covers how meaning works in real communication, including context, culture, and speaker intention.</div>`
+  },
+  {
+    topic: 'theories',
+    title: 'Theories of Meaning',
+    content: `<h4>Theory 1: Words = Objects (Plato)</h4>
+<p>Words directly point to real things in the world. "Tree" points to actual trees.</p>
+<p><strong>Problem:</strong> What about abstract words like "love," "justice," or "maybe"? They don't point to physical objects!</p>
+<h4>Theory 2: Words = Mental Concepts (Saussure)</h4>
+<p>Words connect to <strong>concepts in our minds</strong>, not directly to objects. The word "dog" connects to your mental idea of what a dog is.</p>
+<div class="example"><strong>Signifier</strong> = the word itself (the sound or written form)<br><strong>Signified</strong> = the concept in our mind</div>
+<div class="key-point"><strong>Key Insight:</strong> The connection between a word and its concept is <strong>arbitrary</strong> — the word "dog" doesn't look or sound like a dog. Different languages use completely different words for the same concept.</div>`
+  },
+  {
+    topic: 'sense_reference',
+    title: 'Sense vs Reference',
+    content: `<p>This distinction was famously articulated by philosopher <strong>Gottlob Frege</strong>.</p>
+<h4>Reference (Denotation)</h4>
+<p>What an expression <strong>points to in the real world</strong> — the actual object, person, or entity it denotes.</p>
+<h4>Sense (Intension)</h4>
+<p>The <strong>mental concept</strong> or mode of presentation — how we understand and think about the meaning.</p>
+<div class="example"><strong>Classic Example:</strong> "The morning star" and "the evening star" both <em>refer</em> to Venus (same reference), but they have different <em>senses</em> — one presents it as a star seen in the morning, the other in the evening.</div>
+<h4>Key Differences:</h4>
+<ul>
+<li>Multiple expressions can have the <strong>same reference but different senses</strong> (morning star / evening star → both Venus)</li>
+<li>Some expressions have <strong>sense but no reference</strong> ("unicorn" has a clear concept but no real-world referent)</li>
+<li><strong>Reference can change</strong> while sense stays stable ("the current President" — same sense, different reference over time)</li>
+</ul>`
+  },
+  {
+    topic: 'meaning_types',
+    title: 'Types of Meaning',
+    content: `<h4>1. Denotative (Literal) Meaning</h4>
+<p>The basic, dictionary definition — the core concept a word refers to.</p>
+<div class="example">"Man" = human + male + adult<br>"Car" = vehicle + four wheels + engine</div>
+
+<h4>2. Connotative Meaning</h4>
+<p>Extra feelings, associations, or ideas that come with a word beyond its literal definition.</p>
+<div class="example"><strong>"Home"</strong> — Denotative: place where you live. Connotative: warmth, safety, family, comfort.<br><strong>"Snake"</strong> — Denotative: legless reptile. Connotative: danger, evil, deception.</div>
+
+<h4>3. Social Meaning</h4>
+<p>What a word tells us about the <strong>context or social situation</strong> of its use.</p>
+<div class="example">All mean "where you live" but signal different contexts:<br>
+• <strong>"Domicile"</strong> → legal/official<br>
+• <strong>"Residence"</strong> → formal<br>
+• <strong>"Abode"</strong> → poetic/old-fashioned<br>
+• <strong>"Home"</strong> → everyday casual</div>
+
+<h4>4. Thematic Meaning</h4>
+<p>Meaning that comes from <strong>how you organize your sentence</strong> for emphasis.</p>
+<div class="example">"The dog bit the mailman" → focuses on the dog<br>"The mailman was bitten by the dog" → focuses on the mailman<br>Same event, different emphasis!</div>`
+  },
+  {
+    topic: 'sense_relations',
+    title: 'Sense Relations',
+    content: `<p>Sense relations show how word meanings <strong>systematically connect</strong> to each other.</p>
+
+<h4>Synonymy (Same/Similar Meaning)</h4>
+<div class="example">happy ≈ joyful ≈ glad · big ≈ large ≈ huge · start ≈ begin ≈ commence</div>
+<p><em>Note:</em> Perfect synonyms are rare — there are usually slight differences in usage or connotation.</p>
+
+<h4>Antonymy (Opposite Meaning)</h4>
+<ul>
+<li><strong>Gradable antonyms</strong> (on a scale): hot/cold, tall/short, big/small</li>
+<li><strong>Complementary antonyms</strong> (no middle ground): alive/dead, married/single</li>
+<li><strong>Relational antonyms</strong> (reciprocal): teacher/student, buy/sell, parent/child</li>
+</ul>
+
+<h4>Hyponymy / Hypernymy (General ↔ Specific)</h4>
+<div class="example"><strong>Hypernym</strong> (general): "flower"<br><strong>Hyponyms</strong> (specific): rose, tulip, daisy, lily<br><strong>Co-hyponyms</strong>: rose, tulip, daisy (same level)</div>
+
+<h4>Meronymy / Holonymy (Part ↔ Whole)</h4>
+<div class="example"><strong>Meronym</strong> (part): finger, wheel<br><strong>Holonym</strong> (whole): hand, car<br>"Finger" is a meronym of "hand"</div>`
+  },
+  {
+    topic: 'polysemy_homonymy',
+    title: 'Polysemy & Homonymy',
+    content: `<h4>Homonymy</h4>
+<p>Words with the <strong>same form</strong> (spelling/pronunciation) but <strong>completely unrelated meanings</strong>.</p>
+<div class="example"><strong>"Bat"</strong> — the animal vs. sports equipment (unrelated origins)<br><strong>"Bank"</strong> — financial institution vs. edge of a river</div>
+<p><strong>Homophony</strong> (same sound): see/sea, new/knew, son/sun, right/write<br>
+<strong>Homography</strong> (same spelling, different pronunciation): lead /led/ (metal) vs. lead /leed/ (to guide)</p>
+
+<h4>Polysemy</h4>
+<p>One word with <strong>multiple related meanings</strong> (from the same origin).</p>
+<div class="example"><strong>"Head"</strong> — body part, head of department, head of a nail, head of the table<br>All meanings relate to the idea of "top" or "leading part"</div>
+
+<div class="key-point"><strong>Key Difference:</strong> Homonymy = unrelated meanings that happen to share a form. Polysemy = related meanings that branched from one original meaning.</div>`
+  },
+  {
+    topic: 'ambiguity',
+    title: 'Ambiguity',
+    content: `<p>Ambiguity occurs when a word or sentence can be interpreted in <strong>more than one way</strong>.</p>
+
+<h4>Lexical Ambiguity</h4>
+<p>Arises from a <strong>single word</strong> having multiple meanings.</p>
+<div class="example">"I saw him near the <strong>bank</strong>" — financial institution or river edge?<br>"She hit him with a <strong>bat</strong>" — sports equipment or the animal?</div>
+
+<h4>Structural (Grammatical) Ambiguity</h4>
+<p>Arises from <strong>sentence structure</strong> allowing multiple interpretations.</p>
+<div class="example"><strong>"Flying planes are dangerous"</strong><br>→ Planes that are flying are dangerous<br>→ The activity of flying planes is dangerous</div>
+<div class="example"><strong>"Call me a cab"</strong><br>→ Please get me a taxi<br>→ You can call me "a cab" (nickname)</div>
+<div class="example"><strong>"The professor said on Monday he would give an exam"</strong><br>→ He said it on Monday? Or the exam is on Monday?</div>`
+  },
+  {
+    topic: 'sentence_utterance',
+    title: 'Sentence vs Utterance Meaning',
+    content: `<h4>Sentence Meaning</h4>
+<p>The <strong>literal, context-free</strong> interpretation based on the words and grammar alone.</p>
+
+<h4>Utterance Meaning</h4>
+<p>What the speaker <strong>actually intends</strong> to communicate in a particular context.</p>
+
+<div class="example"><strong>"It's cold in here"</strong><br>
+Sentence meaning: The temperature is low.<br>
+Utterance meaning: Please close the window / turn up the heat!</div>
+
+<div class="example"><strong>"Can you pass the salt?"</strong><br>
+Sentence meaning: Are you physically able to pass the salt?<br>
+Utterance meaning: Please pass me the salt. (a polite request)</div>
+
+<div class="example"><strong>"Nice haircut!"</strong><br>
+Sentence meaning: Your haircut looks attractive.<br>
+Utterance meaning: Could be sincere OR sarcastic — depends on context and tone!</div>
+
+<div class="key-point"><strong>Key Point:</strong> Communication involves far more than the literal words. Context, tone, and shared knowledge all shape what we actually mean.</div>`
+  },
+  {
+    topic: 'entailment',
+    title: 'Entailment & Presupposition',
+    content: `<h4>Entailment</h4>
+<p>A <strong>logical relationship</strong>: if one sentence is true, another <strong>must necessarily</strong> be true.</p>
+<div class="example">"John killed the spider" <strong>entails</strong> "The spider is dead"<br>
+"Sarah is a widow" <strong>entails</strong> "Sarah was married"<br>
+"I have three cats" <strong>entails</strong> "I have at least two cats"</div>
+
+<h4>Presupposition</h4>
+<p><strong>Background information</strong> that must be true for a sentence to make sense.</p>
+<div class="example">"John's wife is beautiful" <strong>presupposes</strong> "John has a wife"<br>
+"I stopped smoking" <strong>presupposes</strong> "I used to smoke"<br>
+"The King of France is bald" <strong>presupposes</strong> "There is a King of France" (which is false!)</div>
+
+<div class="key-point"><strong>Key Difference:</strong><br>
+<strong>Entailment</strong> = logical consequence (disappears under negation: "John didn't kill the spider" → spider might be alive)<br>
+<strong>Presupposition</strong> = assumed background (survives negation: "I didn't stop smoking" still presupposes I used to smoke)</div>`
+  },
+  {
+    topic: 'semantic_change',
+    title: 'Semantic Change',
+    content: `<p>Semantic change is the <strong>evolution of word meanings over time</strong>.</p>
+
+<h4>1. Broadening (Generalization)</h4>
+<p>Meaning becomes more general.</p>
+<div class="example"><strong>"Holiday"</strong>: "holy day" → any day of rest or celebration</div>
+
+<h4>2. Narrowing (Specialization)</h4>
+<p>Meaning becomes more restricted.</p>
+<div class="example"><strong>"Meat"</strong>: any food → specifically animal flesh<br><strong>"Deer"</strong>: any animal → specifically the antlered animal</div>
+
+<h4>3. Amelioration (Semantic Upgrading)</h4>
+<p>Word develops more <strong>positive</strong> connotations.</p>
+<div class="example"><strong>"Nice"</strong>: "foolish/ignorant" → "pleasant/agreeable"</div>
+
+<h4>4. Pejoration (Semantic Degradation)</h4>
+<p>Word develops more <strong>negative</strong> connotations.</p>
+<div class="example"><strong>"Silly"</strong>: "blessed/innocent" → "foolish"</div>
+
+<h4>5. Metaphorical Extension</h4>
+<p>Meaning transfers based on <strong>perceived similarity</strong>.</p>
+<div class="example"><strong>"Mouse"</strong>: the animal → the computer device (similar shape)</div>
+
+<h4>6. Metonymic Change</h4>
+<p>Meaning shifts based on <strong>association</strong>.</p>
+<div class="example"><strong>"Crown"</strong>: the physical object → royal authority<br><strong>"The White House"</strong>: a building → the US presidency</div>`
+  },
+  {
+    topic: 'meaning_of_meaning',
+    title: 'Ogden & Richards: The Meaning of Meaning',
+    content: `<p><strong><em>The Meaning of Meaning</em></strong> (1923) by <strong>C. K. Ogden</strong> and <strong>I. A. Richards</strong> is one of the most influential books in the study of meaning. The authors examined how the word "meaning" itself had been used by philosophers, linguists, and ordinary people — and found it was deeply ambiguous.</p>
+
+<h4>The Semiotic Triangle</h4>
+<p>Their most famous contribution is the <strong>Triangle of Meaning</strong> (also called the Semiotic Triangle), which shows the relationship between three elements:</p>
+<div class="example">
+<strong>1. Symbol</strong> — the word or sign (e.g., the word "tree")<br>
+<strong>2. Thought (Reference)</strong> — the mental concept in our mind<br>
+<strong>3. Referent</strong> — the actual object in the real world (a real tree)<br><br>
+<em>Key insight:</em> The symbol and the referent have <strong>no direct connection</strong>. The link between a word and the thing it stands for is <strong>indirect</strong> — it always passes through the thought or concept in our mind. The dotted line at the base of the triangle represents this indirect relationship.
+</div>
+
+<h4>Six Ways of Defining "Meaning"</h4>
+<p>Ogden and Richards surveyed how scholars and ordinary speakers had used the word "meaning" and identified <strong>six main approaches</strong> to defining it:</p>
+
+<h4>1. Meaning as an Intrinsic Property</h4>
+<p>The idea that meaning is something <strong>built into</strong> a word or thing — that the word itself naturally carries its meaning.</p>
+<div class="example"><strong>Example:</strong> The belief that the word "thunder" somehow <em>sounds</em> like what it refers to. Ogden & Richards rejected this — most word-meaning connections are arbitrary, not natural.</div>
+
+<h4>2. Meaning as a Unique, Unanalyzable Relation</h4>
+<p>The idea that meaning is a <strong>special relationship</strong> between words and things that cannot be broken down or explained further — it just "is."</p>
+<div class="example"><strong>Example:</strong> Saying "we just know what 'red' means" without being able to define that knowing. Ogden & Richards found this approach too vague and mystical to be useful.</div>
+
+<h4>3. Meaning as the Other Words in a Dictionary</h4>
+<p>Defining meaning by <strong>paraphrasing</strong> — explaining a word using other words, as dictionaries do.</p>
+<div class="example"><strong>Example:</strong> "Bachelor" means "an unmarried man." But this is circular — you need to already understand the defining words! Each definition relies on other words that themselves need defining.</div>
+
+<h4>4. Meaning as the Connotations of a Word</h4>
+<p>Meaning as all the <strong>properties, associations, and feelings</strong> a word calls to mind.</p>
+<div class="example"><strong>Example:</strong> "Home" connotes warmth, safety, family — not just "a dwelling." This approach captures the emotional and cultural richness of words but makes meaning subjective and hard to pin down.</div>
+
+<h4>5. Meaning as Place in a System</h4>
+<p>A word gets its meaning from its <strong>position and relationships</strong> within a larger system of language — defined by how it relates to other words.</p>
+<div class="example"><strong>Example:</strong> "Hot" gets part of its meaning from its opposition to "cold," its position on a temperature scale, and its difference from "warm." This idea later influenced <strong>Saussure's structuralism</strong> and modern semantics heavily.</div>
+
+<h4>6. Meaning as Practical Consequences</h4>
+<p>A word or idea means whatever <strong>practical effects</strong> or real-world consequences it leads to in our experience.</p>
+<div class="example"><strong>Example:</strong> The meaning of "fire" includes the practical knowledge that it burns, gives heat, cooks food, and can be dangerous. This approach is linked to <strong>Pragmatism</strong> (the philosophy of Charles S. Peirce and William James).</div>
+
+<div class="key-point"><strong>Why This Matters:</strong> Ogden & Richards showed that "meaning" is not one simple thing — it has been understood in at least six fundamentally different ways. This helped later linguists be more precise about <em>which kind</em> of meaning they were studying. Their Semiotic Triangle remains a standard teaching tool in semantics, and their warning against confusing the word with the thing it stands for is still relevant today.</div>`
+  }
+];
+
+// ===== TEST SET 1: 15 MCQ =====
+const mcqData = [
+  {
+    q: "What is semantics?",
+    options: [
+      "The study of sound patterns in language",
+      "The study of meaning in language",
+      "The study of sentence structure",
+      "The study of word formation"
+    ],
+    correct: 1,
+    explain: "Semantics is the branch of linguistics that studies meaning — how words, phrases, and sentences convey meaning and how we interpret them.",
+    topic: 'basics'
+  },
+  {
+    q: "Who famously articulated the distinction between 'sense' and 'reference'?",
+    options: [
+      "Ferdinand de Saussure",
+      "Noam Chomsky",
+      "Gottlob Frege",
+      "Leonard Bloomfield"
+    ],
+    correct: 2,
+    explain: "The philosopher Gottlob Frege articulated the sense-reference distinction. Sense is the mental concept (mode of presentation), while reference is what an expression points to in the real world.",
+    topic: 'sense_reference'
+  },
+  {
+    q: "'The morning star' and 'the evening star' both refer to Venus. This illustrates that two expressions can have:",
+    options: [
+      "Same sense, different reference",
+      "Same reference, different sense",
+      "No sense and no reference",
+      "Same sense and same reference"
+    ],
+    correct: 1,
+    explain: "Both expressions refer to the same object (Venus) but present it differently — one as a star seen in the morning, the other in the evening. Same reference, different sense.",
+    topic: 'sense_reference'
+  },
+  {
+    q: "The basic, dictionary definition of a word is called its:",
+    options: [
+      "Connotative meaning",
+      "Thematic meaning",
+      "Denotative meaning",
+      "Social meaning"
+    ],
+    correct: 2,
+    explain: "Denotative (or literal) meaning is the core dictionary definition. For example, 'man' denotes: human + male + adult. This meaning is relatively stable across cultures.",
+    topic: 'meaning_types'
+  },
+  {
+    q: "The word 'home' carries associations of warmth, safety, and family beyond its literal meaning. This extra layer is called:",
+    options: [
+      "Denotative meaning",
+      "Grammatical meaning",
+      "Connotative meaning",
+      "Thematic meaning"
+    ],
+    correct: 2,
+    explain: "Connotative meaning includes the emotional associations and cultural ideas that come with a word, beyond its literal definition. 'Home' literally means a place where you live, but connotes warmth, comfort, and family.",
+    topic: 'meaning_types'
+  },
+  {
+    q: "The words 'domicile,' 'residence,' 'abode,' and 'home' all mean 'place where you live' but are used in different contexts. This difference illustrates:",
+    options: [
+      "Thematic meaning",
+      "Denotative meaning",
+      "Social meaning",
+      "Lexical ambiguity"
+    ],
+    correct: 2,
+    explain: "Social meaning comes from how and when a word is used. 'Domicile' is legal/official, 'residence' is formal, 'abode' is poetic, and 'home' is casual — they signal different social contexts.",
+    topic: 'meaning_types'
+  },
+  {
+    q: "Which of the following is a pair of gradable antonyms?",
+    options: [
+      "Alive / Dead",
+      "Teacher / Student",
+      "Hot / Cold",
+      "Married / Single"
+    ],
+    correct: 2,
+    explain: "Gradable antonyms exist on a scale — something can be very hot, warm, lukewarm, cool, or cold. 'Alive/dead' and 'married/single' are complementary (no middle ground), while 'teacher/student' are relational antonyms.",
+    topic: 'sense_relations'
+  },
+  {
+    q: "'Rose,' 'tulip,' and 'daisy' are all __________ of the word 'flower.'",
+    options: [
+      "Hypernyms",
+      "Meronyms",
+      "Synonyms",
+      "Hyponyms"
+    ],
+    correct: 3,
+    explain: "Hyponyms are more specific terms under a general category. 'Rose,' 'tulip,' and 'daisy' are specific types of 'flower' (the hypernym). They are co-hyponyms of each other.",
+    topic: 'sense_relations'
+  },
+  {
+    q: "'Finger' is to 'hand' as 'wheel' is to 'car.' This part-to-whole relationship is called:",
+    options: [
+      "Hyponymy",
+      "Synonymy",
+      "Meronymy",
+      "Antonymy"
+    ],
+    correct: 2,
+    explain: "Meronymy is the part-to-whole semantic relation. 'Finger' is a meronym of 'hand' (the holonym). Similarly, 'wheel' is a meronym of 'car.'",
+    topic: 'sense_relations'
+  },
+  {
+    q: "The word 'bank' meaning both 'financial institution' and 'edge of a river' (with unrelated origins) is an example of:",
+    options: [
+      "Polysemy",
+      "Synonymy",
+      "Homonymy",
+      "Hyponymy"
+    ],
+    correct: 2,
+    explain: "Homonymy occurs when words have the same form (spelling/pronunciation) but completely unrelated meanings. 'Bank' (financial) and 'bank' (river) have different etymological origins, making them homonyms.",
+    topic: 'polysemy_homonymy'
+  },
+  {
+    q: "'I saw her duck' is ambiguous. This type of ambiguity is called:",
+    options: [
+      "Lexical ambiguity only",
+      "Phonological ambiguity",
+      "Structural (grammatical) ambiguity",
+      "Pragmatic ambiguity"
+    ],
+    correct: 2,
+    explain: "This sentence has structural ambiguity: 'duck' could be a noun (the bird she owns) or a verb (the action of ducking). The sentence structure allows both interpretations — this is also called grammatical ambiguity.",
+    topic: 'ambiguity'
+  },
+  {
+    q: "When someone says 'Can you pass the salt?' at dinner, the utterance meaning is:",
+    options: [
+      "A question about physical ability",
+      "A polite request to pass the salt",
+      "A statement about salt",
+      "An exclamation of surprise"
+    ],
+    correct: 1,
+    explain: "The sentence meaning (literal) asks about ability. But the utterance meaning (what the speaker actually intends) is a polite request: 'Please pass me the salt.' This difference between sentence and utterance meaning is central to semantics and pragmatics.",
+    topic: 'sentence_utterance'
+  },
+  {
+    q: "'John killed the spider' entails which of the following?",
+    options: [
+      "John is afraid of spiders",
+      "The spider was dangerous",
+      "The spider is dead",
+      "John used a shoe"
+    ],
+    correct: 2,
+    explain: "Entailment is a logical relationship: if 'John killed the spider' is true, then 'The spider is dead' must necessarily be true. The other options are possible inferences but not logical entailments.",
+    topic: 'entailment'
+  },
+  {
+    q: "The word 'holiday' originally meant 'holy day' but now means any day of rest. This semantic change is called:",
+    options: [
+      "Narrowing",
+      "Amelioration",
+      "Pejoration",
+      "Broadening"
+    ],
+    correct: 3,
+    explain: "Broadening (or generalization) occurs when a word's meaning becomes more general over time. 'Holiday' expanded from specifically 'holy day' to any day of rest or celebration.",
+    topic: 'semantic_change'
+  },
+  {
+    q: "The word 'nice' originally meant 'foolish/ignorant' but now means 'pleasant.' This is an example of:",
+    options: [
+      "Pejoration",
+      "Narrowing",
+      "Amelioration",
+      "Metaphorical extension"
+    ],
+    correct: 2,
+    explain: "Amelioration (semantic upgrading) occurs when a word develops more positive connotations over time. 'Nice' went from negative ('foolish') to positive ('pleasant/agreeable').",
+    topic: 'semantic_change'
+  }
+];
+
+// ===== TEST SET 2: 8 Two-Mark + 7 Paragraph =====
+const writtenData = [
+  // --- 8 Two-Mark Questions ---
+  {
+    q: "Define semantics in one or two sentences.",
+    marks: 2,
+    type: 'twomark',
+    model: "Semantics is the branch of linguistics that studies meaning in language. It examines how words, phrases, and sentences convey meaning and how these meanings are structured, interpreted, and related to each other.",
+    keywords: ['meaning', 'language', 'linguistics', 'study'],
+    topic: 'basics'
+  },
+  {
+    q: "What is denotative meaning? Give one example.",
+    marks: 2,
+    type: 'twomark',
+    model: "Denotative meaning is the basic, literal dictionary definition of a word — its core conceptual meaning. For example, 'man' denotes: human + male + adult.",
+    keywords: ['literal', 'dictionary', 'definition', 'basic', 'core'],
+    topic: 'meaning_types'
+  },
+  {
+    q: "Define synonymy with an example.",
+    marks: 2,
+    type: 'twomark',
+    model: "Synonymy is a sense relation where two or more words have the same or very similar meaning. For example, 'happy' and 'joyful' are synonyms, as are 'big' and 'large.' Perfect synonyms are rare in language.",
+    keywords: ['same', 'similar', 'meaning', 'words'],
+    topic: 'sense_relations'
+  },
+  {
+    q: "What is a hyponym? Give two examples.",
+    marks: 2,
+    type: 'twomark',
+    model: "A hyponym is a word whose meaning is more specific than a general term (hypernym). For example, 'rose' and 'tulip' are hyponyms of 'flower'; 'dog' and 'cat' are hyponyms of 'animal.'",
+    keywords: ['specific', 'general', 'hypernym', 'type', 'kind', 'category'],
+    topic: 'sense_relations'
+  },
+  {
+    q: "Differentiate between homonymy and polysemy.",
+    marks: 2,
+    type: 'twomark',
+    model: "Homonymy occurs when words have the same form but completely unrelated meanings (e.g., 'bat' — the animal vs. the sports equipment). Polysemy occurs when one word has multiple related meanings (e.g., 'head' — body part, head of department, head of a nail).",
+    keywords: ['unrelated', 'related', 'same form', 'multiple meanings', 'different'],
+    topic: 'polysemy_homonymy'
+  },
+  {
+    q: "What is entailment? Give one example.",
+    marks: 2,
+    type: 'twomark',
+    model: "Entailment is a logical relationship where if one sentence is true, another must necessarily be true. For example, 'Sarah is a widow' entails 'Sarah was married' — if the first is true, the second must be true.",
+    keywords: ['logical', 'true', 'necessarily', 'implies', 'consequence'],
+    topic: 'entailment'
+  },
+  {
+    q: "Define presupposition with an example.",
+    marks: 2,
+    type: 'twomark',
+    model: "Presupposition is background information that must be true for a sentence to make sense. For example, 'I stopped smoking' presupposes 'I used to smoke.' If the presupposition is false, the sentence becomes meaningless rather than simply false.",
+    keywords: ['background', 'assumed', 'true', 'make sense', 'taken for granted'],
+    topic: 'entailment'
+  },
+  {
+    q: "What is semantic narrowing? Give one example.",
+    marks: 2,
+    type: 'twomark',
+    model: "Semantic narrowing (specialization) is a type of semantic change where a word's meaning becomes more specific or restricted over time. For example, 'meat' once meant any food but now refers specifically to animal flesh.",
+    keywords: ['specific', 'restricted', 'change', 'time', 'more limited'],
+    topic: 'semantic_change'
+  },
+  // --- 7 Paragraph Questions ---
+  {
+    q: "Explain the distinction between sense and reference with suitable examples.",
+    marks: 6,
+    type: 'paragraph',
+    model: "The sense-reference distinction, articulated by Gottlob Frege, is fundamental to semantics. Reference (denotation) is what an expression points to in the real world — the actual object or entity. Sense (intension) is the mental concept or mode of presentation — how we understand and think about the meaning.\n\nKey differences: (1) Multiple expressions can have the same reference but different senses — 'the morning star' and 'the evening star' both refer to Venus but present it differently. (2) Some expressions have sense but no reference — 'unicorn' has a clear mental concept but no real-world referent. (3) Reference can change while sense stays stable — 'the current President' always has the same sense but refers to different people over time.",
+    keywords: ['Frege', 'reference', 'sense', 'real world', 'mental concept', 'denotation', 'morning star', 'evening star', 'Venus', 'unicorn', 'mode of presentation'],
+    topic: 'sense_reference'
+  },
+  {
+    q: "Discuss the four types of meaning in semantics with examples for each.",
+    marks: 6,
+    type: 'paragraph',
+    model: "There are four major types of meaning in semantics:\n\n1. Denotative (Literal) Meaning — the basic dictionary definition. Example: 'Man' = human + male + adult. This is stable across cultures.\n\n2. Connotative Meaning — extra associations and feelings beyond the literal. Example: 'Home' literally means a dwelling place but connotes warmth, safety, and family.\n\n3. Social Meaning — what a word tells us about the context and social situation. Example: 'Domicile' (legal), 'residence' (formal), 'home' (casual) all mean 'where you live' but signal different contexts.\n\n4. Thematic Meaning — meaning that comes from how information is organized in a sentence. Example: 'The dog bit the mailman' (focuses on the dog) vs. 'The mailman was bitten by the dog' (focuses on the mailman).",
+    keywords: ['denotative', 'connotative', 'social', 'thematic', 'literal', 'dictionary', 'association', 'feeling', 'context', 'emphasis', 'organization'],
+    topic: 'meaning_types'
+  },
+  {
+    q: "Explain any five sense relations in semantics with examples.",
+    marks: 6,
+    type: 'paragraph',
+    model: "Sense relations show how word meanings systematically connect:\n\n1. Synonymy — words with similar meanings. Example: 'happy/joyful,' 'big/large.' Perfect synonyms are rare.\n\n2. Antonymy — words with opposite meanings. Types include gradable (hot/cold), complementary (alive/dead), and relational (teacher/student).\n\n3. Hyponymy — hierarchical relation between general and specific. 'Rose' and 'tulip' are hyponyms of 'flower' (the hypernym). Co-hyponyms are at the same level.\n\n4. Meronymy — part-to-whole relationship. 'Finger' is a meronym of 'hand' (the holonym). 'Wheel' is a meronym of 'car.'\n\n5. Homonymy — same form but unrelated meanings. 'Bat' (animal) and 'bat' (sports equipment) are homonyms.",
+    keywords: ['synonymy', 'antonymy', 'hyponymy', 'meronymy', 'homonymy', 'similar', 'opposite', 'general', 'specific', 'part', 'whole', 'same form'],
+    topic: 'sense_relations'
+  },
+  {
+    q: "Discuss lexical ambiguity and structural ambiguity with clear examples for each.",
+    marks: 6,
+    type: 'paragraph',
+    model: "Ambiguity in semantics occurs when a word or sentence can be interpreted in more than one way.\n\nLexical Ambiguity arises from a single word having multiple meanings. Example: 'I saw him near the bank' — 'bank' could mean a financial institution or the edge of a river. Similarly, 'bat' could mean the animal or sports equipment.\n\nStructural (Grammatical) Ambiguity arises from sentence structure allowing multiple interpretations. Example: 'Flying planes are dangerous' could mean 'Planes that are flying are dangerous' or 'The activity of flying planes is dangerous.' Another example: 'Call me a cab' could mean 'Get me a taxi' or 'You can call me a taxi driver.' The words are the same, but the grammatical structure permits two readings.",
+    keywords: ['lexical', 'structural', 'grammatical', 'multiple meanings', 'interpretation', 'word', 'sentence structure', 'bank', 'flying planes'],
+    topic: 'ambiguity'
+  },
+  {
+    q: "Explain the difference between sentence meaning and utterance meaning with examples.",
+    marks: 6,
+    type: 'paragraph',
+    model: "Sentence meaning is the literal, context-free interpretation of what a sentence says based on the words and grammar alone. Utterance meaning is what the speaker actually intends to communicate in a particular context.\n\nExample 1: 'It's cold in here' — sentence meaning states a temperature fact, but the utterance meaning could be a request to close the window or turn up the heat.\n\nExample 2: 'Can you pass the salt?' — the sentence meaning asks about physical ability, but the utterance meaning is a polite request to pass the salt.\n\nExample 3: 'Nice haircut!' — the sentence meaning praises the haircut, but the utterance meaning could be sincere or sarcastic depending on context and tone. This distinction shows that communication involves far more than the literal words we use.",
+    keywords: ['sentence meaning', 'utterance meaning', 'literal', 'intended', 'context', 'speaker', 'cold', 'salt', 'request', 'indirect'],
+    topic: 'sentence_utterance'
+  },
+  {
+    q: "Discuss entailment and presupposition with examples. How do they differ?",
+    marks: 6,
+    type: 'paragraph',
+    model: "Entailment is a logical relationship where if one sentence is true, another must necessarily be true. Example: 'John killed the spider' entails 'The spider is dead.' If the first sentence is true, the second must be true. Another example: 'Sarah is a widow' entails 'Sarah was married.'\n\nPresupposition is background information that must be true for a sentence to make sense. Example: 'John's wife is beautiful' presupposes 'John has a wife.' 'I stopped smoking' presupposes 'I used to smoke.'\n\nKey difference: Entailment is a logical consequence — it follows from the truth of the statement. Presupposition is assumed background knowledge that must hold for the sentence to be meaningful. Under negation, entailments disappear ('John didn't kill the spider' no longer entails 'The spider is dead'), but presuppositions survive ('John didn't stop smoking' still presupposes 'John used to smoke').",
+    keywords: ['entailment', 'presupposition', 'logical', 'true', 'background', 'assumed', 'consequence', 'negation', 'survive', 'meaningful'],
+    topic: 'entailment'
+  },
+  {
+    q: "Explain the major types of semantic change with examples.",
+    marks: 6,
+    type: 'paragraph',
+    model: "Semantic change is the evolution of word meanings over time. The major types are:\n\n1. Broadening (Generalization) — meaning becomes more general. 'Holiday' changed from 'holy day' to any day of rest.\n\n2. Narrowing (Specialization) — meaning becomes more restricted. 'Meat' once meant any food but now means only animal flesh.\n\n3. Amelioration (Upgrading) — word develops more positive connotations. 'Nice' changed from 'foolish/ignorant' to 'pleasant/agreeable.'\n\n4. Pejoration (Degradation) — word develops more negative connotations. 'Silly' changed from 'blessed/innocent' to 'foolish.'\n\n5. Metaphorical Extension — meaning transfers based on perceived similarity. 'Mouse' extended from the animal to a computer device.\n\n6. Metonymic Change — meaning shifts based on association. 'Crown' came to refer to royal authority, not just the physical object.",
+    keywords: ['broadening', 'narrowing', 'amelioration', 'pejoration', 'metaphor', 'metonymy', 'generalization', 'specialization', 'positive', 'negative', 'holiday', 'meat', 'nice', 'silly'],
+    topic: 'semantic_change'
+  }
+];
+
+// ===== LEARN MODULE =====
+function showLearn() {
+  let html = '';
+  LEARN_DATA.forEach((item, i) => {
+    const info = TOPICS[item.topic] || { icon: '', name: item.title };
+    html += `<div class="learn-card">
+      <div class="learn-header" id="lh-${i}" onclick="toggleLearn(${i})">
+        <span class="lh-icon">${info.icon}</span>
+        <span class="lh-title">${item.title}</span>
+        <span class="lh-arrow">▼</span>
+      </div>
+      <div class="learn-body" id="lb-${i}">${item.content}</div>
+    </div>`;
+  });
+  document.getElementById('learnContent').innerHTML = html;
+  showScreen('learnScreen');
+}
+
+function toggleLearn(i) {
+  const header = document.getElementById('lh-' + i);
+  const body = document.getElementById('lb-' + i);
+  header.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// ===== NAVIGATION =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() { showScreen('homeScreen'); }
+
+function confirmExit() {
+  const answered = currentSet === 1 ? mcqAnswered : writtenChecked;
+  if (answered > 0) {
+    if (!confirm('You have answered some questions. Are you sure you want to exit? Your progress will be saved as incomplete.')) return;
+    // Save incomplete attempt
+    saveIncomplete();
+  }
+  goHome();
+}
+
+// ===== START TEST =====
+function startTest(setNum) {
+  currentSet = setNum;
+  showScreen('nameScreen');
+  document.getElementById('studentRollNo').value = '';
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentRollNo').focus();
+}
+
+function beginTest() {
+  studentRollNo = document.getElementById('studentRollNo').value.trim();
+  studentName = document.getElementById('studentName').value.trim();
+  if (!studentRollNo) { document.getElementById('studentRollNo').focus(); return; }
+  if (!studentName) { document.getElementById('studentName').focus(); return; }
+  if (currentSet === 1) {
+    mcqAnswered = 0; mcqCorrect = 0; mcqResults = [];
+    renderMCQ();
+    showScreen('mcqScreen');
+  } else {
+    writtenChecked = 0; writtenResults = [];
+    renderWritten();
+    showScreen('writtenScreen');
+  }
+}
+
+// ===== RENDER MCQ (Set 1) =====
+function renderMCQ() {
+  let html = '';
+  mcqData.forEach((item, i) => {
+    const optHtml = item.options.map((opt, oi) =>
+      `<button class="mcq-option" id="opt-${i}-${oi}" onclick="pickMCQ(${i},${oi})">${String.fromCharCode(65+oi)}) ${opt}</button>`
+    ).join('');
+    const topicInfo = TOPICS[item.topic] || { name: item.topic, icon: '' };
+    html += `<div class="mcq-card" id="mcq-${i}">
+      <div class="q-num">Question ${i+1} of 15 · ${topicInfo.icon} ${topicInfo.name}</div>
+      <div class="q-text">${item.q}</div>
+      ${optHtml}
+      <div class="mcq-feedback" id="mcqfb-${i}"></div>
+    </div>`;
+  });
+  document.getElementById('mcqContent').innerHTML = html;
+  updateMCQProgress();
+}
+
+function pickMCQ(qi, oi) {
+  const item = mcqData[qi];
+  // Disable all options for this question
+  item.options.forEach((_, j) => {
+    const btn = document.getElementById(`opt-${qi}-${j}`);
+    btn.disabled = true;
+    btn.onclick = null;
+  });
+  const chosen = document.getElementById(`opt-${qi}-${oi}`);
+  const isCorrect = oi === item.correct;
+
+  if (isCorrect) {
+    chosen.classList.add('chosen', 'correct');
+    chosen.innerHTML = `<span class="opt-icon">✅</span> ${chosen.textContent}`;
+  } else {
+    chosen.classList.add('chosen', 'wrong');
+    chosen.innerHTML = `<span class="opt-icon">❌</span> ${chosen.textContent}`;
+    const correctBtn = document.getElementById(`opt-${qi}-${item.correct}`);
+    correctBtn.classList.add('reveal-correct');
+    correctBtn.innerHTML = `<span class="opt-icon">✅</span> ${correctBtn.textContent}`;
+  }
+
+  // Show feedback
+  const fb = document.getElementById(`mcqfb-${qi}`);
+  const emoji = isCorrect ? '🎉' : '💡';
+  const label = isCorrect ? 'Correct!' : 'Not quite right.';
+  fb.className = `mcq-feedback show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  fb.innerHTML = `<div class="fb-emoji">${emoji}</div><div class="fb-label">${label}</div><p>${item.explain}</p>`;
+
+  mcqAnswered++;
+  if (isCorrect) mcqCorrect++;
+  mcqResults.push({ correct: isCorrect, topic: item.topic });
+  updateMCQProgress();
+
+  if (mcqAnswered === mcqData.length) {
+    document.getElementById('mcqSubmitBtn').style.display = 'inline-block';
+  }
+}
+
+function updateMCQProgress() {
+  document.getElementById('mcqProgress').textContent = `${mcqAnswered}/${mcqData.length}`;
+  document.getElementById('mcqBar').style.width = `${(mcqAnswered/mcqData.length)*100}%`;
+}
+
+// ===== RENDER WRITTEN (Set 2) =====
+function renderWritten() {
+  let html = '';
+  writtenData.forEach((item, i) => {
+    const topicInfo = TOPICS[item.topic] || { name: item.topic, icon: '' };
+    const isP = item.type === 'paragraph';
+    html += `<div class="wq-card" id="wq-${i}">
+      <div class="q-num">Question ${i+1} of 15 · ${topicInfo.icon} ${topicInfo.name}</div>
+      <div class="q-marks">${item.marks} Marks · ${isP ? 'Paragraph' : 'Two-Mark'}</div>
+      <div class="q-text">${item.q}</div>
+      <textarea id="wqans-${i}" class="${isP ? 'para' : ''}" placeholder="Write your answer here..."></textarea>
+      <button class="btn btn-primary btn-sm wq-check-btn" id="wqbtn-${i}" onclick="checkWritten(${i})">Check Answer</button>
+      <div class="wq-feedback" id="wqfb-${i}"></div>
+    </div>`;
+  });
+  document.getElementById('writtenContent').innerHTML = html;
+  updateWrittenProgress();
+}
+
+function checkWritten(qi) {
+  const item = writtenData[qi];
+  const answer = document.getElementById(`wqans-${qi}`).value.trim();
+  const btn = document.getElementById(`wqbtn-${qi}`);
+  const fb = document.getElementById(`wqfb-${qi}`);
+
+  if (!answer) {
+    document.getElementById(`wqans-${qi}`).focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Checked ✓';
+  btn.classList.remove('btn-primary');
+  btn.classList.add('btn-outline');
+  document.getElementById(`wqans-${qi}`).readOnly = true;
+
+  // Keyword matching
+  const lower = answer.toLowerCase();
+  let hits = 0;
+  item.keywords.forEach(kw => {
+    if (lower.includes(kw.toLowerCase())) hits++;
+  });
+  const ratio = hits / item.keywords.length;
+
+  let level, emoji, label, advice;
+  if (ratio >= 0.6) {
+    level = 'good'; emoji = '🌟'; label = 'Great Answer!';
+    advice = "Your answer covers the key concepts well. Keep up the excellent work!";
+  } else if (ratio >= 0.3) {
+    level = 'partial'; emoji = '🔶'; label = 'Partially Correct';
+    advice = "You're on the right track but missed some key points. Compare with the model answer below.";
+  } else {
+    level = 'weak'; emoji = '📘'; label = 'Needs More Detail';
+    advice = "Your answer needs more key concepts. Study the model answer carefully and try to remember the important terms.";
+  }
+
+  fb.className = `wq-feedback show fb-${level}`;
+  fb.innerHTML = `
+    <div class="fb-emoji">${emoji}</div>
+    <div class="fb-label">${label}</div>
+    <p>${advice}</p>
+    <div class="fb-model"><strong>Model Answer:</strong><br>${item.model.replace(/\n/g, '<br>')}</div>`;
+
+  writtenChecked++;
+  writtenResults.push({ level, topic: item.topic, marks: item.marks, type: item.type });
+  updateWrittenProgress();
+
+  if (writtenChecked === writtenData.length) {
+    document.getElementById('writtenSubmitBtn').style.display = 'inline-block';
+  }
+}
+
+function updateWrittenProgress() {
+  document.getElementById('writtenProgress').textContent = `${writtenChecked}/${writtenData.length} checked`;
+  document.getElementById('writtenBar').style.width = `${(writtenChecked/writtenData.length)*100}%`;
+}
+
+// ===== FINISH MCQ (Set 1) =====
+function finishMCQ() {
+  const total = mcqData.length;
+  const pct = Math.round((mcqCorrect / total) * 100);
+  const { grade, gradeMsg, emoji: gradeEmoji, encourage } = getGradeInfo(pct);
+
+  // Topic breakdown
+  const topicPerf = {};
+  mcqResults.forEach(r => {
+    if (!topicPerf[r.topic]) topicPerf[r.topic] = { correct: 0, total: 0 };
+    topicPerf[r.topic].total++;
+    if (r.correct) topicPerf[r.topic].correct++;
+  });
+  const sorted = Object.entries(topicPerf).sort((a, b) => (a[1].correct/a[1].total) - (b[1].correct/b[1].total));
+
+  let barsHtml = sorted.map(([tid, p]) => {
+    const tpct = Math.round((p.correct / p.total) * 100);
+    const cls = tpct >= 70 ? 'strong' : (tpct >= 40 ? 'medium' : 'weak');
+    const info = TOPICS[tid] || { name: tid, icon: '' };
+    return `<div class="topic-strength">
+      <span style="min-width:180px">${info.icon} ${info.name}</span>
+      <div class="bar-bg"><div class="bar-fill ${cls}" style="width:${tpct}%"></div></div>
+      <span style="min-width:50px;text-align:right;font-weight:600">${p.correct}/${p.total}</span>
+    </div>`;
+  }).join('');
+
+  const weakTopics = sorted.filter(([, p]) => (p.correct / p.total) < 0.5);
+  let tips = '';
+  if (weakTopics.length > 0) {
+    tips = `<div class="next-step-box"><h3>📌 Focus Areas</h3><ol>` +
+      weakTopics.slice(0, 4).map(([tid]) => {
+        const info = TOPICS[tid] || { name: tid, icon: '' };
+        return `<li>${info.icon} <strong>${info.name}</strong> — revise this topic and try again.</li>`;
+      }).join('') + `</ol></div>`;
+  }
+
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="result-header">
+      <h2 style="color:var(--accent)">Test Set 1 — MCQ Results</h2>
+      <div class="score-ring">${mcqCorrect}/${total}</div>
+      <div class="score-pct">${pct}%</div>
+      <div class="grade-text">${grade}</div>
+      <div class="grade-msg">${gradeMsg}</div>
+    </div>
+    <div class="encourage-box">
+      <div class="emoji">${gradeEmoji}</div>
+      <h3>${encourage.title}</h3>
+      <p>${encourage.msg}</p>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0">
+      <h3 style="color:var(--accent);margin-bottom:12px">Topic-wise Performance</h3>
+      <div style="padding:8px 0">${barsHtml}</div>
+      ${tips}
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" style="color:var(--good)">${mcqCorrect}</div><div class="stat-label">Correct</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--weak)">${total - mcqCorrect}</div><div class="stat-label">Incorrect</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${pct}%</div><div class="stat-label">Score</div></div>
+    </div>
+    <div style="text-align:center;margin:24px 0">
+      <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
+      <button class="btn btn-outline" style="margin-left:8px" onclick="startTest(1)">Retake Test</button>
+    </div>`;
+
+  // Save result
+  saveResult({
+    rollNo: studentRollNo,
+    name: studentName,
+    set: 'MCQ Test (Set 1)',
+    score: pct,
+    grade: grade,
+    good: mcqCorrect,
+    partial: 0,
+    weak: total - mcqCorrect,
+    unanswered: 0,
+    total: total,
+    status: 'Complete',
+    date: new Date().toISOString()
+  });
+
+  showScreen('resultsScreen');
+}
+
+// ===== FINISH WRITTEN (Set 2) =====
+function finishWritten() {
+  const total = writtenData.length;
+  const goodCount = writtenResults.filter(r => r.level === 'good').length;
+  const partialCount = writtenResults.filter(r => r.level === 'partial').length;
+  const weakCount = writtenResults.filter(r => r.level === 'weak').length;
+  const pct = Math.round((goodCount / total) * 100 + (partialCount / total) * 40);
+  const cappedPct = Math.min(pct, 100);
+  const { grade, gradeMsg, emoji: gradeEmoji, encourage } = getGradeInfo(cappedPct);
+
+  // Topic breakdown
+  const topicPerf = {};
+  writtenResults.forEach(r => {
+    if (!topicPerf[r.topic]) topicPerf[r.topic] = { good: 0, partial: 0, weak: 0, total: 0 };
+    topicPerf[r.topic].total++;
+    topicPerf[r.topic][r.level]++;
+  });
+  const sorted = Object.entries(topicPerf).sort((a, b) => {
+    const aScore = (a[1].good / a[1].total);
+    const bScore = (b[1].good / b[1].total);
+    return aScore - bScore;
+  });
+
+  let barsHtml = sorted.map(([tid, p]) => {
+    const tpct = Math.round(((p.good + p.partial * 0.5) / p.total) * 100);
+    const cls = tpct >= 70 ? 'strong' : (tpct >= 40 ? 'medium' : 'weak');
+    const info = TOPICS[tid] || { name: tid, icon: '' };
+    return `<div class="topic-strength">
+      <span style="min-width:180px">${info.icon} ${info.name}</span>
+      <div class="bar-bg"><div class="bar-fill ${cls}" style="width:${tpct}%"></div></div>
+      <span style="min-width:80px;text-align:right;font-size:.8rem">${p.good}G ${p.partial}P ${p.weak}W</span>
+    </div>`;
+  }).join('');
+
+  const weakTopics = sorted.filter(([, p]) => (p.good / p.total) < 0.5);
+  let tips = '';
+  if (weakTopics.length > 0) {
+    tips = `<div class="next-step-box"><h3>📌 Focus Areas</h3><ol>` +
+      weakTopics.slice(0, 4).map(([tid]) => {
+        const info = TOPICS[tid] || { name: tid, icon: '' };
+        return `<li>${info.icon} <strong>${info.name}</strong> — review and practise writing about this topic.</li>`;
+      }).join('') + `</ol></div>`;
+  }
+
+  // Type breakdown
+  const twoMark = writtenResults.filter(r => r.type === 'twomark');
+  const para = writtenResults.filter(r => r.type === 'paragraph');
+  const tmGood = twoMark.filter(r => r.level === 'good').length;
+  const pGood = para.filter(r => r.level === 'good').length;
+
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="result-header">
+      <h2 style="color:var(--accent)">Test Set 2 — Written Results</h2>
+      <div class="score-ring">${goodCount}/${total}</div>
+      <div class="score-pct">${cappedPct}%</div>
+      <div class="grade-text">${grade}</div>
+      <div class="grade-msg">${gradeMsg}</div>
+    </div>
+    <div class="encourage-box">
+      <div class="emoji">${gradeEmoji}</div>
+      <h3>${encourage.title}</h3>
+      <p>${encourage.msg}</p>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin:16px 0">
+      <h3 style="color:var(--accent);margin-bottom:12px">Score by Question Type</h3>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" style="color:#1565c0">${tmGood}/${twoMark.length}</div><div class="stat-label">Two-Mark (Good)</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:#7b1fa2">${pGood}/${para.length}</div><div class="stat-label">Paragraph (Good)</div></div>
+      </div>
+      <h4 style="margin-top:16px;margin-bottom:8px">Topic-wise Performance:</h4>
+      <div style="padding:8px 0">${barsHtml}</div>
+      ${tips}
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" style="color:var(--good)">${goodCount}</div><div class="stat-label">Good 🌟</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--avg)">${partialCount}</div><div class="stat-label">Partial 🔶</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--weak)">${weakCount}</div><div class="stat-label">Needs Work 📘</div></div>
+    </div>
+    <div style="text-align:center;margin:24px 0">
+      <button class="btn btn-primary" onclick="goHome()">Back to Home</button>
+      <button class="btn btn-outline" style="margin-left:8px" onclick="startTest(2)">Retake Test</button>
+    </div>`;
+
+  saveResult({
+    rollNo: studentRollNo,
+    name: studentName,
+    set: 'Written Test (Set 2)',
+    score: cappedPct,
+    grade: grade,
+    good: goodCount,
+    partial: partialCount,
+    weak: weakCount,
+    unanswered: 0,
+    total: total,
+    status: 'Complete',
+    date: new Date().toISOString()
+  });
+
+  showScreen('resultsScreen');
+}
+
+// ===== GRADE & ENCOURAGEMENT =====
+function getGradeInfo(pct) {
+  let grade, gradeMsg, emoji, encourage;
+  if (pct >= 80) {
+    grade = 'Excellent';
+    gradeMsg = 'Outstanding performance! You have a strong grasp of semantic concepts.';
+    emoji = '🏆';
+    encourage = {
+      title: "You're a Semantics Star!",
+      msg: "Your understanding of meaning in language is impressive. You clearly know your sense relations, types of meaning, and semantic changes. Keep pushing — try the other test set to challenge yourself further, or help a classmate who might be struggling!"
+    };
+  } else if (pct >= 60) {
+    grade = 'Good';
+    gradeMsg = 'Good understanding overall. A bit more revision on weaker topics will make you excellent!';
+    emoji = '👏';
+    encourage = {
+      title: "Great Progress!",
+      msg: "You're well on your way to mastering semantics. Focus on the topics marked below — review those concepts and their examples, then come back for another round. Each attempt makes you stronger!"
+    };
+  } else if (pct >= 40) {
+    grade = 'Average';
+    gradeMsg = 'You know the basics but need more practice. Focus on the weak areas below.';
+    emoji = '💪';
+    encourage = {
+      title: "Keep Going — You Can Do This!",
+      msg: "Every expert was once a beginner! The key semantic concepts like sense relations, types of meaning, and entailment take time to master. Review your notes on the focus areas below, look at the examples carefully, and take the test again. You'll see improvement!"
+    };
+  } else {
+    grade = 'Needs Improvement';
+    gradeMsg = 'Don\'t worry — this is a learning journey. Study the topics below and try again.';
+    emoji = '📚';
+    encourage = {
+      title: "This Is Just the Beginning!",
+      msg: "Semantics can be tricky at first, but it gets clearer with practice. Start with the basics — what is semantics, what are the types of meaning, and how do words relate to each other (sense relations). Go through your class notes and the examples. Then come back and try again — you've got this!"
+    };
+  }
+  return { grade, gradeMsg, emoji, encourage };
+}
+
+// ===== SAVE RESULT =====
+function saveResult(r) {
+  try {
+    const results = JSON.parse(localStorage.getItem('semTwinResults') || '[]');
+    results.push(r);
+    localStorage.setItem('semTwinResults', JSON.stringify(results));
+  } catch(e) {}
+  if (SHEET_URL) {
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(r)
+    }).catch(() => {});
+  }
+}
+
+function saveIncomplete() {
+  const setName = currentSet === 1 ? 'MCQ Test (Set 1)' : 'Written Test (Set 2)';
+  const answered = currentSet === 1 ? mcqAnswered : writtenChecked;
+  const total = currentSet === 1 ? mcqData.length : writtenData.length;
+  let score = 0;
+  if (currentSet === 1 && mcqAnswered > 0) {
+    score = Math.round((mcqCorrect / mcqAnswered) * 100);
+  } else if (currentSet === 2 && writtenChecked > 0) {
+    const goodCount = writtenResults.filter(r => r.level === 'good').length;
+    score = Math.round((goodCount / writtenChecked) * 100 + (writtenResults.filter(r => r.level === 'partial').length / writtenChecked) * 40);
+  }
+
+  saveResult({
+    rollNo: studentRollNo,
+    name: studentName,
+    set: setName,
+    score: score,
+    grade: 'Incomplete',
+    good: currentSet === 1 ? mcqCorrect : writtenResults.filter(r => r.level === 'good').length,
+    partial: currentSet === 1 ? 0 : writtenResults.filter(r => r.level === 'partial').length,
+    weak: currentSet === 1 ? (mcqAnswered - mcqCorrect) : writtenResults.filter(r => r.level === 'weak').length,
+    unanswered: total - answered,
+    total: total,
+    status: 'Incomplete',
+    date: new Date().toISOString()
+  });
+}
+
+// ===== TEACHER DASHBOARD =====
+function showDashLogin() {
+  showScreen('dashboardScreen');
+  document.getElementById('dashContent').innerHTML = `
+    <div class="dash-login">
+      <h2 style="color:var(--accent);margin-bottom:16px;">Teacher Dashboard</h2>
+      <input type="text" id="dashUser" placeholder="Username">
+      <input type="password" id="dashPass" placeholder="Password">
+      <br>
+      <button class="btn btn-primary" onclick="dashLogin()">Login</button>
+    </div>`;
+  setTimeout(() => document.getElementById('dashUser').focus(), 100);
+}
+
+function dashLogin() {
+  const u = document.getElementById('dashUser').value.trim();
+  const p = document.getElementById('dashPass').value.trim();
+  if (u === DASH_USER && p === DASH_PASS) {
+    renderDashboard();
+  } else {
+    alert('Invalid credentials. Please try again.');
+  }
+}
+
+function renderDashboard() {
+  const results = JSON.parse(localStorage.getItem('semTwinResults') || '[]');
+
+  if (results.length === 0 && !SHEET_URL) {
+    document.getElementById('dashContent').innerHTML = `
+      <h2 style="color:var(--accent);margin-bottom:16px">Teacher Dashboard</h2>
+      <p style="color:var(--muted);text-align:center;padding:40px">No results yet. Students need to complete tests first.</p>
+      <div style="text-align:center"><button class="btn btn-outline" onclick="goHome()">Back</button></div>`;
+    return;
+  }
+
+  // Stats
+  const totalAttempts = results.length;
+  const complete = results.filter(r => r.status === 'Complete').length;
+  const incomplete = results.filter(r => r.status === 'Incomplete').length;
+  const avgScore = totalAttempts > 0 ? Math.round(results.reduce((s, r) => s + (r.score || 0), 0) / totalAttempts) : 0;
+  const uniqueStudents = [...new Set(results.map(r => r.rollNo))].length;
+
+  let rowsHtml = results.slice().reverse().map(r => {
+    const d = r.date ? new Date(r.date) : null;
+    const dateStr = d ? d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '—';
+    const statusBadge = r.status === 'Complete'
+      ? '<span style="color:var(--good);font-weight:600">✅ Complete</span>'
+      : '<span style="color:var(--avg);font-weight:600">⏳ Incomplete</span>';
+    return `<tr>
+      <td>${r.rollNo || '—'}</td>
+      <td>${r.name || '—'}</td>
+      <td>${r.set || '—'}</td>
+      <td>${r.score || 0}%</td>
+      <td>${r.grade || '—'}</td>
+      <td>${r.good || 0}</td>
+      <td>${r.partial || 0}</td>
+      <td>${r.weak || 0}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:.8rem">${dateStr}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('dashContent').innerHTML = `
+    <h2 style="color:var(--accent);margin-bottom:16px">Teacher Dashboard</h2>
+    <div class="dash-stats">
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${totalAttempts}</div><div class="stat-label">Total Attempts</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--good)">${complete}</div><div class="stat-label">Complete</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--avg)">${incomplete}</div><div class="stat-label">Incomplete</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--accent)">${avgScore}%</div><div class="stat-label">Avg Score</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#7b1fa2">${uniqueStudents}</div><div class="stat-label">Unique Students</div></div>
+    </div>
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>Roll No</th><th>Name</th><th>Test</th><th>Score</th><th>Grade</th><th>Good</th><th>Partial</th><th>Weak</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${rowsHtml || '<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--muted)">No results yet</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div style="text-align:center;margin:24px 0">
+      <button class="btn btn-outline" onclick="goHome()">Back to Home</button>
+      <button class="btn btn-weak btn-sm" style="margin-left:8px" onclick="if(confirm('Clear all local results?')){localStorage.removeItem('semTwinResults');renderDashboard();}">Clear Local Data</button>
+    </div>`;
+}
+</script>
+</body>
+</html>
